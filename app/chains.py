@@ -6,16 +6,24 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.exceptions import OutputParserException
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load environment variables from the .env file
+load_dotenv()  # Correct path to your .env file
 
 class Chain:
     def __init__(self):
+        # Get the GROQ_API_KEY from environment variables
+        groq_api_key = os.getenv("GROQ_API_KEY")
+        
+        if not groq_api_key:
+            raise ValueError("GROQ_API_KEY not found. Make sure it is set in the .env file.")
+        
+        # Use the environment variable instead of hardcoding the key
         self.llm = ChatGroq(
             temperature=0,
-            groq_api_key='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',
+            groq_api_key=groq_api_key,  # API key fetched from environment variable
             model_name='llama3-8b-8192'
         )
-        
+
     def extract_jobs(self, cleaned_text):
         prompt_extract = PromptTemplate.from_template(
             """
@@ -86,6 +94,6 @@ class Chain:
         res = chain_email.invoke({"job_description": str(job), "link_list": links})
         return res.content.strip()
 
+
 if __name__ == "__main__":
     print(os.getenv("GROQ_API_KEY"))
-
